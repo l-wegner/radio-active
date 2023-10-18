@@ -5,6 +5,7 @@
 import datetime
 import json
 import sys
+from typing import List, Any, Dict
 
 import requests_cache
 from pyradios import RadioBrowser
@@ -62,7 +63,7 @@ class Handler:
 
         # when multiple results found
         if len(self.response) > 1:
-            self.print_search_result_table()
+            print_search_result_table(self.response)
             return self.response
 
         # when exactly one response found
@@ -75,32 +76,6 @@ class Handler:
 
             return self.response
             # return self.response[0]["name"].strip()
-
-    def print_search_result_table(self):
-        table = Table(show_header=True, header_style="bold magenta")
-        table.add_column("ID", justify="center")
-        table.add_column("Station", justify="left")
-        # table.add_column("UUID", justify="center")
-        table.add_column("Country", justify="center")
-        table.add_column("Tags", justify="center")
-        log.warn(
-            "showing {} stations with the name!".format(len(self.response)))
-        for i in range(0, len(self.response)):
-            station = self.response[i]
-            table.add_row(
-                str(i + 1),
-                trim_string(station["name"], max_length=50),
-                # station["stationuuid"],
-                station["countrycode"],
-                trim_string(
-                    station["tags"]
-                ),  # trimming tags to make the table shorter
-            )
-        console.print(table)
-        log.info(
-            "If the table does not fit into your screen, \
-            \ntry to maximize the window , decrease the font by a bit and retry"
-        )
 
     # ---------------------------- NAME -------------------------------- #
     def search_by_station_name(self, _name=None, limit=100):
@@ -157,36 +132,12 @@ class Handler:
 
         if len(response) > 1:
             log.info("Result for country: {}".format(response[0]["country"]))
-            self.print_search_result_table_country(response)
+            print_search_result_table_country(response)
 
             return response
         else:
             log.error("No stations found for the country code/name, recheck it")
             sys.exit(1)
-
-    def print_search_result_table_country(self, response):
-        table = Table(show_header=True, header_style="bold magenta")
-        table.add_column("ID", justify="center")
-        table.add_column("Station", justify="left")
-        # table.add_column("UUID", justify="center")
-        table.add_column("State", justify="center")
-        table.add_column("Tags", justify="center")
-        table.add_column("Language", justify="center")
-        for i in range(0, len(response)):
-            current_response = response[i]
-            table.add_row(
-                str(i + 1),
-                trim_string(current_response["name"], max_length=30),
-                # res["stationuuid"],
-                current_response["state"],
-                trim_string(current_response["tags"], max_length=20),
-                trim_string(current_response["language"], max_length=20),
-            )
-        console.print(table)
-        log.info(
-            "If the table does not fit into your screen,\
-                \ntry to maximize the window , decrease the font by a bit and retry"
-        )
 
     # ------------------- by state ---------------------
 
@@ -198,35 +149,12 @@ class Handler:
             sys.exit(1)
 
         if len(discover_result) > 1:
-            self.print_search_result_table_state(discover_result)
+            print_search_result_table_state(discover_result)
 
             return discover_result
         else:
             log.error("No stations found for the state, recheck it")
             sys.exit(1)
-
-    def print_search_result_table_state(self, discover_result):
-        table = Table(show_header=True, header_style="bold magenta")
-        table.add_column("ID", justify="center")
-        table.add_column("Station", justify="left")
-        # table.add_column("UUID", justify="center")
-        table.add_column("Country", justify="center")
-        table.add_column("Tags", justify="center")
-        table.add_column("Language", justify="center")
-        for i in range(0, len(discover_result)):
-            res = discover_result[i]
-            table.add_row(
-                str(i + 1),
-                trim_string(res["name"], max_length=30),
-                # res["stationuuid"],
-                trim_string(res["country"], max_length=20),
-                trim_string(res["tags"], max_length=20),
-                trim_string(res["language"], max_length=20),
-            )
-        console.print(table)
-        log.info(
-            "If the table does not fit into your screen, \ntry to maximize the window , decrease the font by a bit and retry"
-        )
 
     # -----------------by language --------------------
 
@@ -239,33 +167,12 @@ class Handler:
             sys.exit(1)
 
         if len(discover_result) > 1:
-            self.print_search_result_language(discover_result)
+            print_search_result_language(discover_result)
 
             return discover_result
         else:
             log.error("No stations found for the language, recheck it")
             sys.exit(1)
-
-    def print_search_result_language(self, discover_result):
-        table = Table(show_header=True, header_style="bold magenta")
-        table.add_column("ID", justify="center")
-        table.add_column("Station", justify="left")
-        # table.add_column("UUID", justify="center")
-        table.add_column("Country", justify="center")
-        table.add_column("Tags", justify="center")
-        for i in range(0, len(discover_result)):
-            res = discover_result[i]
-            table.add_row(
-                str(i + 1),
-                trim_string(res["name"], max_length=30),
-                # res["stationuuid"],
-                trim_string(res["country"], max_length=20),
-                trim_string(res["tags"], max_length=30),
-            )
-        console.print(table)
-        log.info(
-            "If the table does not fit into your screen, \ntry to maximize the window, decrease the font by a bit and retry"
-        )
 
     # -------------------- by tag ---------------------- #
 
@@ -278,33 +185,12 @@ class Handler:
             sys.exit(1)
 
         if len(discover_result) > 1:
-            self.print_search_result_tag(discover_result)
+            print_search_result_tag(discover_result)
             return discover_result
         else:
             log.error("No stations found for the tag, recheck it")
             sys.exit(1)
 
-    def print_search_result_tag(self, discover_result):
-        table = Table(show_header=True, header_style="bold magenta")
-        table.add_column("ID", justify="center")
-        table.add_column("Station", justify="left")
-        # table.add_column("UUID", justify="center")
-        table.add_column("country", justify="center")
-        table.add_column("Language", justify="center")
-        for i in range(0, len(discover_result)):
-            res = discover_result[i]
-            table.add_row(
-                str(i + 1),
-                trim_string(res["name"], max_length=30),
-                # res["stationuuid"],
-                trim_string(res["country"], max_length=20),
-                trim_string(res["language"], max_length=20),
-            )
-        console.print(table)
-        log.info(
-            "If the table does not fit into your screen, \
-            \ntry to maximize the window , decrease the font by a bit and retry"
-        )
 
     # ---- increase click count ------------- #
     def vote_for_uuid(self, UUID):
@@ -313,3 +199,124 @@ class Handler:
             return result
         except Exception as e:
             log.debug("Something went wrong during increasing click count:{}".format(e))
+
+
+def print_search_result_table(result: List[Any]):
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("ID", justify="center")
+    table.add_column("Station", justify="left")
+    # table.add_column("UUID", justify="center")
+    table.add_column("Country", justify="center")
+    table.add_column("Tags", justify="center")
+    log.warn(
+        "showing {} stations with the name!".format(len(result)))
+    for i in range(0, len(result)):
+        station = result[i]
+        table.add_row(
+            str(i + 1),
+            trim_string(station["name"], max_length=50),
+            # station["stationuuid"],
+            station["countrycode"],
+            trim_string(
+                station["tags"]
+            ),  # trimming tags to make the table shorter
+        )
+    console.print(table)
+    log.info(
+        "If the table does not fit into your screen, \
+        \ntry to maximize the window , decrease the font by a bit and retry"
+    )
+
+
+def print_search_result_table_country(result: List[Any]):
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("ID", justify="center")
+    table.add_column("Station", justify="left")
+    # table.add_column("UUID", justify="center")
+    table.add_column("State", justify="center")
+    table.add_column("Tags", justify="center")
+    table.add_column("Language", justify="center")
+    for i in range(0, len(result)):
+        current_response = result[i]
+        table.add_row(
+            str(i + 1),
+            trim_string(current_response["name"], max_length=30),
+            # res["stationuuid"],
+            current_response["state"],
+            trim_string(current_response["tags"], max_length=20),
+            trim_string(current_response["language"], max_length=20),
+        )
+    console.print(table)
+    log.info(
+        "If the table does not fit into your screen,\
+            \ntry to maximize the window , decrease the font by a bit and retry"
+    )
+
+
+def print_search_result_table_state(result: List[Any]):
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("ID", justify="center")
+    table.add_column("Station", justify="left")
+    # table.add_column("UUID", justify="center")
+    table.add_column("Country", justify="center")
+    table.add_column("Tags", justify="center")
+    table.add_column("Language", justify="center")
+    for i in range(0, len(result)):
+        res = result[i]
+        table.add_row(
+            str(i + 1),
+            trim_string(res["name"], max_length=30),
+            # res["stationuuid"],
+            trim_string(res["country"], max_length=20),
+            trim_string(res["tags"], max_length=20),
+            trim_string(res["language"], max_length=20),
+        )
+    console.print(table)
+    log.info(
+        "If the table does not fit into your screen, \ntry to maximize the window , decrease the font by a bit and retry"
+    )
+
+
+def print_search_result_language(result: List[Any]):
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("ID", justify="center")
+    table.add_column("Station", justify="left")
+    # table.add_column("UUID", justify="center")
+    table.add_column("Country", justify="center")
+    table.add_column("Tags", justify="center")
+    for i in range(0, len(result)):
+        res = result[i]
+        table.add_row(
+            str(i + 1),
+            trim_string(res["name"], max_length=30),
+            # res["stationuuid"],
+            trim_string(res["country"], max_length=20),
+            trim_string(res["tags"], max_length=30),
+        )
+    console.print(table)
+    log.info(
+        "If the table does not fit into your screen, \ntry to maximize the window, decrease the font by a bit and retry"
+    )
+
+
+def print_search_result_tag(result: List[Any]):
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("ID", justify="center")
+    table.add_column("Station", justify="left")
+    # table.add_column("UUID", justify="center")
+    table.add_column("country", justify="center")
+    table.add_column("Language", justify="center")
+    for i in range(0, len(result)):
+        res = result[i]
+        table.add_row(
+            str(i + 1),
+            trim_string(res["name"], max_length=30),
+            # res["stationuuid"],
+            trim_string(res["country"], max_length=20),
+            trim_string(res["language"], max_length=20),
+        )
+    console.print(table)
+    log.info(
+        "If the table does not fit into your screen, \
+        \ntry to maximize the window , decrease the font by a bit and retry"
+    )

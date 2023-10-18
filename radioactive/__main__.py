@@ -14,18 +14,19 @@ from radioactive.handler import Handler
 from radioactive.help import show_help
 from radioactive.last_station import Last_station
 from radioactive.player import Player, kill_background_ffplays
+from radioactive.gui import (print_welcome_screen, print_update_screen,
+                             print_favorite_table, print_current_play_panel
+                             )
 from radioactive.utilities import (handle_add_station, handle_add_to_favorite,
-                                   handle_current_play_panel,
-                                   handle_direct_play, handle_favorite_table,
+                                   handle_direct_play,
                                    handle_listen_keypress, handle_log_level,
                                    handle_play_last_station, handle_record,
                                    handle_save_last_station,
                                    handle_search_stations,
                                    handle_station_selection_menu,
                                    handle_station_uuid_play,
-                                   handle_update_screen,
-                                   handle_user_choice_from_search_result,
-                                   handle_welcome_screen)
+                                   handle_user_choice_from_search_result
+                                   )
 
 # globally needed as signal handler needs it
 # to terminate main() properly
@@ -42,12 +43,16 @@ def final_step(options, last_station, alias, handler):
     if options["curr_station_name"].strip() == "":
         options["curr_station_name"] = "N/A"
 
-    def curry_current_station_name_state_changed(callback_player: Optional[Player]):
+    def curry_current_station_name_state_changed(
+        callback_player: Optional[Player]):
         # TODO clean this up, as soon as there's a type for stations,
         # which holds at least the station and url
-        handle_current_play_panel(callback_player, options["curr_station_name"])
+        print_current_play_panel(callback_player,
+                                  options["curr_station_name"])
 
-    player = Player(options["target_url"], options["volume"], options["loglevel"],[curry_current_station_name_state_changed])
+    player = Player(options["target_url"], options["volume"],
+                    options["loglevel"],
+                    [curry_current_station_name_state_changed])
 
     handle_save_last_station(
         last_station, options["curr_station_name"], options["target_url"]
@@ -128,7 +133,7 @@ def main():
     last_station = Last_station()
 
     # --------------- app logic starts here ------------------- #
-    handle_welcome_screen()
+    print_welcome_screen()
 
     if args.version:
         log.info("RADIO-ACTIVE : version {}".format(VERSION))
@@ -148,13 +153,13 @@ def main():
         sys.exit(0)
 
     if options["show_favorite_list"]:
-        handle_favorite_table(alias)
+        print_favorite_table(alias)
         sys.exit(0)
 
     if options["add_station"]:
         handle_add_station(alias)
 
-    handle_update_screen(app)
+    print_update_screen(app)
 
     # ----------- country ----------- #
     if options["discover_country_code"]:
@@ -200,7 +205,8 @@ def main():
 
     # -------------- tag ------------- #
     if options["discover_tag"]:
-        response = handler.discover_by_tag(options["discover_tag"], options["limit"])
+        response = handler.discover_by_tag(options["discover_tag"],
+                                           options["limit"])
         if response is not None:
             (
                 options["curr_station_name"],
@@ -226,7 +232,8 @@ def main():
     # --------------------ONLY UUID PROVIDED --------------------- #
 
     if options["search_station_uuid"] is not None:
-        options["curr_station_name"], options["target_url"] = handle_station_uuid_play(
+        options["curr_station_name"], options[
+            "target_url"] = handle_station_uuid_play(
             handler, options["search_station_uuid"]
         )
         final_step(options, last_station, alias, handler)
@@ -254,13 +261,15 @@ def main():
             sys.exit(0)
     # ------------------------- direct play ------------------------#
     if options["direct_play"] is not None:
-        options["curr_station_name"], options["target_url"] = handle_direct_play(
+        options["curr_station_name"], options[
+            "target_url"] = handle_direct_play(
             alias, options["direct_play"]
         )
         final_step(options, last_station, alias, handler)
 
     if options["play_last_station"]:
-        options["curr_station_name"], options["target_url"] = handle_play_last_station(
+        options["curr_station_name"], options[
+            "target_url"] = handle_play_last_station(
             last_station
         )
         final_step(options, last_station, alias, handler)

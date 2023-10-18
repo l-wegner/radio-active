@@ -1,7 +1,10 @@
 import os.path
+from typing import Any
 
 from zenlog import log
 
+# TODO introduce a fitting type
+Station = Any
 
 class Alias:
     def __init__(self):

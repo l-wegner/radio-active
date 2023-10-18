@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Callable, List
 
 from rich import print
 from rich.console import Console
@@ -7,8 +7,21 @@ from rich.table import Table
 from rich.text import Text
 from zenlog import log
 
+from radioactive.alias import Station
 from radioactive.player import Player
 
+
+class SearchResultColumn:
+    def __init__(self, add_column: Callable[[Table], None],
+                 extract_value: Callable[[Station], str]):
+        self._add_column = add_column
+        self._extract_value = extract_value
+
+    def add_column(self, table: Table):
+        self._add_column(table)
+
+    def extract_value(self, station: Station) -> str:
+        return self._extract_value(station)
 
 def print_welcome_screen():
     welcome = Panel(
@@ -66,3 +79,21 @@ def print_current_play_panel(player: Optional[Player], curr_station_name=""):
     station_panel = Panel(panel_station_name, title="[blink]:radio:[/blink]", width=85)
     console = Console()
     console.print(station_panel)
+
+
+def print_search_result(result: List[Station], columns: List[SearchResultColumn]):
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("ID", justify="center")
+
+    for column in columns:
+        column.add_column(table)
+    for i, res in enumerate(result):
+        table.add_row(
+            *([str(i + 1)] + [column.extract_value(res) for column in columns])
+        )
+    console = Console()
+    console.print(table)
+    log.info(
+        "If the table does not fit into your screen, \
+        \ntry to maximize the window , decrease the font by a bit and retry"
+    )

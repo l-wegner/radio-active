@@ -4,18 +4,13 @@
 import datetime
 import json
 import sys
-from typing import List, Any, Dict, Callable
+from typing import Any, Dict
 
 import requests_cache
 from pyradios import RadioBrowser
-from rich.console import Console
-from rich.table import Table
 from zenlog import log
 
-console = Console()
-
-# TODO introduce a fitting type
-Station = Any
+from radioactive.gui import print_search_result, SearchResultColumn
 
 
 def trim_string(text, max_length=40):
@@ -230,19 +225,6 @@ class Handler:
                     e))
 
 
-class SearchResultColumn:
-    def __init__(self, add_column: Callable[[Table], None],
-                 extract_value: Callable[[Station], str]):
-        self._add_column = add_column
-        self._extract_value = extract_value
-
-    def add_column(self, table: Table):
-        self._add_column(table)
-
-    def extract_value(self, station: Station) -> str:
-        return self._extract_value(station)
-
-
 column_station = lambda max_length: SearchResultColumn(
     lambda table: table.add_column("Station", justify="left"),
     lambda station: trim_string(station["name"], max_length=max_length))
@@ -270,22 +252,4 @@ column_tags = lambda max_length: SearchResultColumn(
 column_language = SearchResultColumn(
     lambda table: table.add_column("Language", justify="center"),
     lambda station: trim_string(station["language"]))
-
-
-def print_search_result(result: List[Station], columns: List[SearchResultColumn]):
-    table = Table(show_header=True, header_style="bold magenta")
-    table.add_column("ID", justify="center")
-
-    for column in columns:
-        column.add_column(table)
-    for i, res in enumerate(result):
-        table.add_row(
-            *([str(i + 1)] + [column.extract_value(res) for column in columns])
-        )
-    console.print(table)
-    log.info(
-        "If the table does not fit into your screen, \
-        \ntry to maximize the window , decrease the font by a bit and retry"
-    )
-
 

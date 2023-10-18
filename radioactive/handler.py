@@ -66,7 +66,11 @@ class Handler:
         # when multiple results found
         if len(self.response) > 1:
             log.warn(f"showing {len(self.response)} stations with the name!")
-            print_search_result_table(self.response)
+            print_search_result(self.response,
+                                [column_station(50),
+                                 # column_uuid.add_column(table)
+                                 column_country_code,
+                                 column_tags(40)])
             return self.response
 
         # when exactly one response found
@@ -137,7 +141,12 @@ class Handler:
 
         if len(response) > 1:
             log.info("Result for country: {}".format(response[0]["country"]))
-            print_search_result_table_country(response)
+            print_search_result(response,
+                                [column_station(30),
+                                 # column_uuid.add_column(table)
+                                 column_state,
+                                 column_tags(20),
+                                 column_language])
 
             return response
         else:
@@ -155,7 +164,12 @@ class Handler:
             sys.exit(1)
 
         if len(discover_result) > 1:
-            print_search_result_table_state(discover_result)
+            print_search_result(discover_result,
+                                [column_station(30),
+                                 # column_uuid.add_column(table)
+                                 column_country,
+                                 column_tags(20),
+                                 column_language])
 
             return discover_result
         else:
@@ -173,7 +187,11 @@ class Handler:
             sys.exit(1)
 
         if len(discover_result) > 1:
-            print_search_result_language(discover_result)
+            print_search_result(discover_result,
+                                [column_station(30),
+                                 # column_uuid.add_column(table)
+                                 column_country,
+                                 column_tags(30)])
 
             return discover_result
         else:
@@ -191,7 +209,11 @@ class Handler:
             sys.exit(1)
 
         if len(discover_result) > 1:
-            print_search_result_tag(discover_result)
+            print_search_result(discover_result,
+                                [column_station(30),
+                                 # column_uuid.add_column(table)
+                                 column_country,
+                                 column_language])
             return discover_result
         else:
             log.error("No stations found for the tag, recheck it")
@@ -250,7 +272,7 @@ column_language = SearchResultColumn(
     lambda station: trim_string(station["language"]))
 
 
-def print_search_result(result: List[Any], columns: List[SearchResultColumn]):
+def print_search_result(result: List[Station], columns: List[SearchResultColumn]):
     table = Table(show_header=True, header_style="bold magenta")
     table.add_column("ID", justify="center")
 
@@ -267,43 +289,3 @@ def print_search_result(result: List[Any], columns: List[SearchResultColumn]):
     )
 
 
-def print_search_result_table(result: List[Any]):
-    print_search_result(result,
-                        [column_station(50),
-                         # column_uuid.add_column(table)
-                         column_country_code,
-                         column_tags(40)])
-
-
-def print_search_result_table_country(result: List[Any]):
-    print_search_result(result,
-                        [column_station(30),
-                         # column_uuid.add_column(table)
-                         column_state,
-                         column_tags(20),
-                         column_language])
-
-
-def print_search_result_table_state(result: List[Station]):
-    print_search_result(result,
-                        [column_station(30),
-                         # column_uuid.add_column(table)
-                         column_country,
-                         column_tags(20),
-                         column_language])
-
-
-def print_search_result_language(result: List[Station]):
-    print_search_result(result,
-                        [column_station(30),
-                         # column_uuid.add_column(table)
-                         column_country,
-                         column_tags(30)])
-
-
-def print_search_result_tag(result: List[Station]):
-    print_search_result(result,
-                        [column_station(30),
-                         # column_uuid.add_column(table)
-                         column_country,
-                         column_language])

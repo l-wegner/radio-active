@@ -31,7 +31,7 @@ class Handler:
         self.API = None
         self.response = None
         self.target_station = None
-
+        self.countries = Dict[str, Any]
         # When RadioBrowser can not be initiated properly due to no internet (probably)
         try:
             expire_after = datetime.timedelta(days=3)
@@ -45,7 +45,8 @@ class Handler:
             sys.exit(1)
 
     def get_country_code(self, name):
-        self.countries = self.API.countries()
+        if not self.countries:
+            self.countries = self.API.countries()
         for country in self.countries:
             if country["name"].lower() == name.lower():
                 return country["iso_3166_1"]
